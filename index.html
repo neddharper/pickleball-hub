@@ -15,7 +15,7 @@
       --bg-success: #eaf3de;
       --bg-warning: #faeeda;
       --bg-danger: #fcebeb;
-      --text-primary: #1a1a1a;
+      --text-primary: #ebfc72;
       --text-secondary: #6b6b6b;
       --text-tertiary: #9b9b9b;
       --text-info: #0c447c;
@@ -1290,7 +1290,7 @@ function doPrint(p){
   if(p.warmup) rows+=`<div class="slot"><div class="num">${n++}</div><div><div class="t">Warmup</div><div class="m">5 min · Dynamic stretching, light rallying</div></div></div>`;
   rows+=p.slots.map(s=>`<div class="slot"><div class="num">${n++}</div><div><div class="t">${s.drill.title}</div><div class="m">${s.dur} min · ${s.drill.focus} · ${s.drill.format}</div><div class="d">${s.drill.desc}</div>${s.note||s.drill.tips?`<div class="tip">Coach tip: ${s.note||s.drill.tips}</div>`:''}</div></div>`).join('');
   if(p.cooldown) rows+=`<div class="slot"><div class="num">${n++}</div><div><div class="t">Cooldown &amp; review</div><div class="m">5 min · Feedback and questions</div></div></div>`;
-  w.document.write(`<!DOCTYPE html><html><head><title>${p.title}</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:system-ui,sans-serif;color:#1a1a1a;padding:2rem;max-width:680px;margin:0 auto}h1{font-size:22px;font-weight:600;margin-bottom:4px}.meta{font-size:13px;color:#666;margin-bottom:1rem}.goal{font-size:13px;color:#555;padding:8px 12px;background:#f5f5f5;border-radius:6px;margin-bottom:1.5rem}.slot{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #eee}.slot:last-child{border-bottom:none}.num{width:26px;height:26px;border-radius:50%;background:#f0f0f0;font-size:12px;font-weight:600;flex-shrink:0;color:#666;display:flex;align-items:center;justify-content:center}.t{font-size:14px;font-weight:500}.m{font-size:12px;color:#666;margin-top:2px}.d{font-size:12px;color:#666;margin-top:4px;line-height:1.6}.tip{font-size:12px;color:#666;padding:4px 8px;border-left:2px solid #ccc;margin-top:6px}@media print{body{padding:0}}</style></head><body><h1>${p.title}</h1><div class="meta">${p.client?'For: '+p.client+' · ':''}${p.date||''} · ${used} min · ${p.slots.length} drills</div>${p.goal?`<div class="goal">Goal: ${p.goal}</div>`:''}${rows}<script>window.onload=()=>window.print()<\/script></body></html>`);
+  w.document.write(`<!DOCTYPE html><html><head><title>${p.title}</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:system-ui,sans-serif;color:#ebfc72;padding:2rem;max-width:680px;margin:0 auto}h1{font-size:22px;font-weight:600;margin-bottom:4px}.meta{font-size:13px;color:#666;margin-bottom:1rem}.goal{font-size:13px;color:#555;padding:8px 12px;background:#f5f5f5;border-radius:6px;margin-bottom:1.5rem}.slot{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #eee}.slot:last-child{border-bottom:none}.num{width:26px;height:26px;border-radius:50%;background:#f0f0f0;font-size:12px;font-weight:600;flex-shrink:0;color:#666;display:flex;align-items:center;justify-content:center}.t{font-size:14px;font-weight:500}.m{font-size:12px;color:#666;margin-top:2px}.d{font-size:12px;color:#666;margin-top:4px;line-height:1.6}.tip{font-size:12px;color:#666;padding:4px 8px;border-left:2px solid #ccc;margin-top:6px}@media print{body{padding:0}}</style></head><body><h1>${p.title}</h1><div class="meta">${p.client?'For: '+p.client+' · ':''}${p.date||''} · ${used} min · ${p.slots.length} drills</div>${p.goal?`<div class="goal">Goal: ${p.goal}</div>`:''}${rows}<script>window.onload=()=>window.print()<\/script></body></html>`);
   w.document.close();
 }
 

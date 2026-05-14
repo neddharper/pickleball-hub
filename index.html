@@ -556,78 +556,11 @@
   <!-- CLIENTS -->
   <div id="panel-clients" class="panel">
     <div class="sl">Add client</div>
-    async function importRoster(input){
-  const file=input.files[0];if(!file)return;
-  const resultEl=document.getElementById('import-result');
-  resultEl.innerHTML='<div class="notice">Reading file...</div>';
-  let emails=[];
-  try{
-    const text=await file.text();
-    if(file.name.endsWith('.csv')){
-      // Parse CSV — find email column or use first column
-      const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
-      const header=lines[0].toLowerCase().split(',').map(h=>h.trim().replace(/"/g,''));
-      const emailCol=header.findIndex(h=>h.includes('email'));
-      if(emailCol>=0){
-        // Has email header — skip header row
-        emails=lines.slice(1).map(l=>{
-          const cols=l.split(',').map(c=>c.trim().replace(/"/g,''));
-          return cols[emailCol];
-        });
-      } else {
-        // No header — treat first column as emails, include all rows
-        emails=lines.map(l=>l.split(',')[0].trim().replace(/"/g,''));
-      }
-    } else {
-      // Excel — use SheetJS via CDN
-      resultEl.innerHTML='<div class="notice">Excel import requires saving the file as CSV first. Please export as CSV and try again.</div>';
-      input.value='';return;
-    }
-    emails=emails.map(e=>e.toLowerCase().trim()).filter(e=>e&&e.includes('@'));
-    if(!emails.length){resultEl.innerHTML='<div class="notice">No valid emails found in file.</div>';input.value='';return;}
-  } catch(e){
-    resultEl.innerHTML='<div class="notice">Could not read file: '+e.message+'</div>';input.value='';return;
-  }
-
-  // Deduplicate
-  emails=[...new Set(emails)];
-  resultEl.innerHTML=`<div class="notice">Found ${emails.length} email${emails.length!==1?'s':''}. Looking up accounts...</div>`;
-
-  let added=0,notFound=[],alreadyAdded=0;
-  for(const email of emails){
-    if(coachClients.find(c=>c.email===email)){alreadyAdded++;continue;}
-    const {data:profile}=await sb.from('profiles').select('id,full_name,email').eq('email',email).eq('role','client').single();
-    if(!profile){notFound.push(email);continue;}
-    const {error}=await sb.from('coach_clients').insert({coach_id:CU.id,client_id:profile.id});
-    if(!error||error.code==='23505'){
-      if(!coachClients.find(c=>c.id===profile.id))coachClients.push(profile);
-      added++;
-    }
-  }
-
-  popClientDL();popShareSels();popClientIdSel();renderClients();
-  input.value='';
-
-  let msg=`<div class="notice-lime">`;
-  if(added)msg+=`✅ ${added} client${added!==1?'s':''} added. `;
-  if(alreadyAdded)msg+=`${alreadyAdded} already on your roster. `;
-  if(notFound.length)msg+=`<br>⚠️ ${notFound.length} email${notFound.length!==1?'s':''} not found (no account): ${notFound.slice(0,5).join(', ')}${notFound.length>5?'...':''}`;
-  msg+=`</div>`;
-  resultEl.innerHTML=msg;
-}
-<div style="display:flex;gap:8px;margin-bottom:6px">
-  <input type="email" id="add-cl-email" placeholder="client@example.com" style="flex:1">
-  <button class="bs2" onclick="addClient()">Add</button>
-</div>
-<div style="margin-bottom:6px;display:flex;align-items:center;gap:8px">
-  <label class="bs2" style="cursor:pointer;padding:8px 14px;font-size:13px;display:inline-block">
-    📋 Import CSV / Excel
-    <input type="file" id="bulk-import-file" accept=".csv,.xlsx,.xls" style="display:none" onchange="importRoster(this)">
-  </label>
-  <span style="font-size:12px;color:var(--tx2)">One email per row, or a column named "email"</span>
-</div>
-<div id="import-result" style="margin-bottom:10px"></div>
-<div style="font-size:12px;color:var(--tx2);margin-bottom:1.5rem">Client must have a Pickleball Hub account. Once added, you can link them directly to scheduled sessions.</div>
+    <div style="display:flex;gap:8px;margin-bottom:6px">
+      <input type="email" id="add-cl-email" placeholder="client@example.com" style="flex:1">
+      <button class="bs2" onclick="addClient()">Add</button>
+    </div>
+    <div style="font-size:12px;color:var(--tx2);margin-bottom:1.5rem">Client must have a Pickleball Hub account. Once added, you can link them directly to scheduled sessions.</div>
     <div class="sl">Roster</div>
     <div id="cl-roster"></div>
     <div class="divider"></div>

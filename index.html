@@ -846,7 +846,7 @@ function buildNav(){
   let h='';
   if(isClient) h+=n('client-home','Home')+n('player-session','Sessions')+n('player-progress','Progress');
   else if(mode==='player') h+=n('drills','Drills')+n('player-session','Sessions')+n('player-progress','Progress');
-  else h+=n('drills','Drills')+n('schedule','Schedule')+n('coach-history','History')+n('plan','Plan')+n('saved','Saved')+n('clients','Clients')+n('coach-progress','Stats');
+  else h+=n('drills','Drills')+n('schedule','Schedule')+n('coach-history','History')+n('plan','New Plan')+n('saved','My Plans')+n('clients','Clients')+n('coach-progress','Stats');
   document.getElementById('nav-tabs').innerHTML=h;
 }
 function n(p,l){return`<button class="nb" data-p="${p}" onclick="showPanel('${p}');sn('${p}')">${l}</button>`;}

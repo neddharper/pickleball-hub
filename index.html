@@ -799,8 +799,14 @@ async function setupApp(){
 async function loadCoachData(){
   const {data:plans}=await sb.from('lesson_plans').select('*').eq('coach_id',CU.id).order('created_at',{ascending:false});
   savedPlans=plans||[];
-  const {data:rels}=await sb.from('coach_clients').select('client_id,profiles(id,full_name,email)').eq('coach_id',CU.id);
-  coachClients=(rels||[]).map(r=>r.profiles).filter(Boolean);
+  const {data:rels}=await sb.from('coach_clients').select('client_id').eq('coach_id',CU.id);
+const clientIds=(rels||[]).map(r=>r.client_id);
+if(clientIds.length){
+  const {data:profiles}=await sb.from('profiles').select('id,full_name,email').in('id',clientIds);
+  coachClients=profiles||[];
+} else {
+  coachClients=[];
+}
   const {data:evs}=await sb.from('scheduled_events').select('*').eq('coach_id',CU.id).order('date',{ascending:true});
   schedEvs=evs||[];
   popPlanSels();popClientDL();popShareSels();popClientIdSel();

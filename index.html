@@ -1507,8 +1507,66 @@ async function addClient(){
   if(!coachClients.find(c=>c.id===profile.id))coachClients.push(profile);
   document.getElementById('add-cl-email').value='';
   popClientDL();popShareSels();popClientIdSel();renderClients();
-  alert(`${profile.full_name} added to your roster!`);
+  alert(`${profile.full_name} added to your roster!`);async function importRoster(input){
+  const file=input.files[0];if(!file)return;
+  const resultEl=document.getElementById('import-result');
+  resultEl.innerHTML='<div class="notice">Reading file...</div>';
+  let emails=[];
+  try{
+    const text=await file.text();
+    if(file.name.endsWith('.csv')){
+      // Parse CSV — find email column or use first column
+      const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
+      const header=lines[0].toLowerCase().split(',').map(h=>h.trim().replace(/"/g,''));
+      const emailCol=header.findIndex(h=>h.includes('email'));
+      if(emailCol>=0){
+        // Has email header — skip header row
+        emails=lines.slice(1).map(l=>{
+          const cols=l.split(',').map(c=>c.trim().replace(/"/g,''));
+          return cols[emailCol];
+        });
+      } else {
+        // No header — treat first column as emails, include all rows
+        emails=lines.map(l=>l.split(',')[0].trim().replace(/"/g,''));
+      }
+    } else {
+      // Excel — use SheetJS via CDN
+      resultEl.innerHTML='<div class="notice">Excel import requires saving the file as CSV first. Please export as CSV and try again.</div>';
+      input.value='';return;
+    }
+    emails=emails.map(e=>e.toLowerCase().trim()).filter(e=>e&&e.includes('@'));
+    if(!emails.length){resultEl.innerHTML='<div class="notice">No valid emails found in file.</div>';input.value='';return;}
+  } catch(e){
+    resultEl.innerHTML='<div class="notice">Could not read file: '+e.message+'</div>';input.value='';return;
+  }
+
+  // Deduplicate
+  emails=[...new Set(emails)];
+  resultEl.innerHTML=`<div class="notice">Found ${emails.length} email${emails.length!==1?'s':''}. Looking up accounts...</div>`;
+
+  let added=0,notFound=[],alreadyAdded=0;
+  for(const email of emails){
+    if(coachClients.find(c=>c.email===email)){alreadyAdded++;continue;}
+    const {data:profile}=await sb.from('profiles').select('id,full_name,email').eq('email',email).eq('role','client').single();
+    if(!profile){notFound.push(email);continue;}
+    const {error}=await sb.from('coach_clients').insert({coach_id:CU.id,client_id:profile.id});
+    if(!error||error.code==='23505'){
+      if(!coachClients.find(c=>c.id===profile.id))coachClients.push(profile);
+      added++;
+    }
+  }
+
+  popClientDL();popShareSels();popClientIdSel();renderClients();
+  input.value='';
+
+  let msg=`<div class="notice-lime">`;
+  if(added)msg+=`✅ ${added} client${added!==1?'s':''} added. `;
+  if(alreadyAdded)msg+=`${alreadyAdded} already on your roster. `;
+  if(notFound.length)msg+=`<br>⚠️ ${notFound.length} email${notFound.length!==1?'s':''} not found (no account): ${notFound.slice(0,5).join(', ')}${notFound.length>5?'...':''}`;
+  msg+=`</div>`;
+  resultEl.innerHTML=msg;
 }
+} 
 function renderClients(){
   const el=document.getElementById('cl-roster');
   el.innerHTML=coachClients.length?coachClients.map(c=>`
